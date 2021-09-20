@@ -68,7 +68,9 @@ func main(){
 
 	fmt.Println(cu)
 
-	cu.NewAgents(lider.AgentLdapBaseDn)
+	agents := cu.NewAgents(lider.AgentLdapBaseDn)
+
+	cu.TriggerPayloadonAllAgents(agents)
 	//fmt.Println(NewPayload())
 
 

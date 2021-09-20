@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/fatih/color"
 	"github.com/go-ldap/ldap/v3"
 )
@@ -117,6 +119,8 @@ func (lider *LiderAhenkConfig)PrintCredentials(){
 func (lider *LiderAhenkConfig)CheckLDAPCredentials() {
 
 	print_info("Checking LDAP credentials")
+
+	time.Sleep(1)
 
 	l , err := ldap.Dial("tcp", fmt.Sprintf("%s:%s", lider.LdapServer, lider.LdapPort))
 

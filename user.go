@@ -7,6 +7,7 @@ import (
 	"net/http/cookiejar"
 	"net/url"
 	"strings"
+	"time"
 )
 
 type ConsoleUser struct {
@@ -17,6 +18,8 @@ type ConsoleUser struct {
 
 func (cu *ConsoleUser)Login()  {
 	print_info("Authentication to the console with credentials")
+
+	time.Sleep(1)
 
 	options := cookiejar.Options{
         
@@ -38,6 +41,7 @@ func (cu *ConsoleUser)Login()  {
 	if err != nil {
 		panic_with_msg("Unable to login somehow. Dunno why", err)
 	}
+	defer resp.Body.Close()
 	
 	body, err := ioutil.ReadAll(resp.Body)
 
